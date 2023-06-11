@@ -1,0 +1,17 @@
+{
+  "name": "experimental-dev",
+  "version": "1.0.0",
+  "description": "a slack bot that summarizes a whole slack channel using chatgpt",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1395.0",
+    "axios": "^1.4.0",
+    "openai": "^3.2.1",
+    "querystring": "^0.2.1"
+  }
+}
