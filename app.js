@@ -9,40 +9,28 @@ const openai = new OpenAIApi(configuration);
 const token = process.env.SLACK_BOT_TOKEN;
 
 exports.handler = async (event, context, callback) => {
-  try {
-    const body = querystring.parse(
-      Buffer.from(event.body, "base64").toString("utf-8")
-    );
+  const body = event.body;
+  const userId = body.user;
 
-    const channelName = body.text;
-    const userId = body.user_id;
-    let response = {};
+  switch (body.type) {
+    case "message":
+      // if the bot receives a private direct message
+      if (body.channel_type === "im") {
+        const channelName = body.text;
+        const channelId = await getChannelId(channelName);
 
-    // sendSummaryToUser(userId, "summaryyy", token);
-
-    const channelId = await getChannelId(channelName);
-
-    if (channelId) {
-      response.message = `The ID of '${channelName}' is: ${channelId}`;
-
-      // Enqueue the summarization task in the background
-      summarizeSlackChannelInBackground(channelId, userId, token);
-    } else {
-      response.message = `Channel '${channelName}' not found.`;
-    }
-
-    // Invoke the callback function with the response
-    callback(null, {
-      statusCode: 200,
-      body: JSON.stringify(response),
-    });
-  } catch (error) {
-    // Handle errors and include error message in the response
-    console.error(`Error occurred: ${error}`);
-    callback(null, {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
-    });
+        if (channelId) {
+          await summarizeSlackChannelInBackground(channelId, userId, token);
+        }
+      } else {
+        callback(null, {
+          statusCode: 200,
+          body: JSON.stringify(response),
+        });
+      }
+      break;
+    default:
+      callback(null);
   }
 };
 
@@ -139,7 +127,6 @@ async function summarizeSlackChannel(chatHistory) {
 }
 
 async function sendSummaryToUser(userId, summary, token) {
-  console.log(summary);
   try {
     // Open a DM channel with the user
     const response = await axios.post(
