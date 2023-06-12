@@ -18,8 +18,6 @@ exports.handler = async (event, context, callback) => {
     const userId = body.user_id;
     let response = {};
 
-    // sendSummaryToUser(userId, "summaryyy", token);
-
     const channelId = await getChannelId(channelName);
 
     if (channelId) {
@@ -30,14 +28,11 @@ exports.handler = async (event, context, callback) => {
     } else {
       response.message = `Channel '${channelName}' not found.`;
     }
-
-    // Invoke the callback function with the response
     callback(null, {
       statusCode: 200,
       body: JSON.stringify(response),
     });
   } catch (error) {
-    // Handle errors and include error message in the response
     console.error(`Error occurred: ${error}`);
     callback(null, {
       statusCode: 500,
@@ -160,7 +155,7 @@ async function sendSummaryToUser(userId, summary, token) {
     // Send a DM to the user
     const message = {
       channel: dmChannelId,
-      text: "dm from the bot",
+      text: summary,
     };
 
     await axios.post("https://slack.com/api/chat.postMessage", message, {
